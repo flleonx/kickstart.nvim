@@ -26,27 +26,25 @@ vim.keymap.set('v', '>', '>gv', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, { noremap = true, silent = true })
 
 return {
-  -- {
-  --   'sainnhe/gruvbox-material',
-  --   lazy = false,
-  --   priority = 1000,
-  -- },
-  -- {
-  --   'f-person/auto-dark-mode.nvim',
-  --   opts = {
-  --     set_dark_mode = function()
-  --       vim.api.nvim_set_option_value('background', 'dark', {})
-  --       vim.cmd.colorscheme 'gruvbox-material'
-  --     end,
-  --     set_light_mode = function()
-  --       vim.api.nvim_set_option_value('background', 'light', {})
-  --       vim.g.gruvbox_material_foreground = 'original'
-  --       vim.cmd.colorscheme 'gruvbox-material'
-  --     end,
-  --     update_interval = 10000,
-  --     fallback = 'dark',
-  --   },
-  -- },
+  {
+    'sainnhe/gruvbox-material',
+    priority = 1000,
+  },
+  {
+    'f-person/auto-dark-mode.nvim',
+    opts = {
+      set_dark_mode = function()
+        vim.api.nvim_set_option_value('background', 'dark', {})
+        vim.cmd.colorscheme 'gruvbox-material'
+      end,
+      set_light_mode = function()
+        vim.api.nvim_set_option_value('background', 'light', {})
+        vim.cmd.colorscheme 'gruvbox-material'
+      end,
+      update_interval = 10000,
+      fallback = 'dark',
+    },
+  },
   {
     'folke/flash.nvim',
     event = 'VeryLazy',
@@ -82,10 +80,16 @@ return {
     end,
   },
   {
-    'mfussenegger/nvim-dap',
-    dependencies = { 'leoluz/nvim-dap-go' },
-    config = function()
-      require('dap-go').setup()
-    end,
+    'cbochs/grapple.nvim',
+    opts = {
+      scope = 'git',
+      icons = false,
+    },
+    keys = {
+      { '<leader>m', '<cmd>Grapple toggle<cr>', desc = 'Grapple toggle tag' },
+      { '<leader>M', '<cmd>Grapple toggle_tags<cr>', desc = 'Grapple open tags window' },
+      { '<leader>n', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
+      { '<leader>p', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
+    },
   },
 }
