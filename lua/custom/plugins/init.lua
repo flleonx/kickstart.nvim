@@ -6,7 +6,7 @@
 vim.opt.swapfile = false
 vim.opt.wrap = false
 
-vim.opt.scrolloff = 20
+vim.opt.scrolloff = 7
 
 vim.opt.ph = 15
 
