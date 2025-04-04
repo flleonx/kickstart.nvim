@@ -92,4 +92,17 @@ return {
       { '<leader>p', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
     },
   },
+  {
+    'mfussenegger/nvim-lint',
+    config = function()
+      require('lint').linters_by_ft = {
+        go = { 'golangcilint' },
+      }
+      vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
+        callback = function()
+          require('lint').try_lint()
+        end,
+      })
+    end,
+  },
 }
