@@ -283,6 +283,9 @@ require('lazy').setup({
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
           previewer = false,
+          layout_config = {
+            height = 40,
+          },
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
