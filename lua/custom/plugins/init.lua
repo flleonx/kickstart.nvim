@@ -2,6 +2,7 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
+vim.o.termguicolors = true
 
 vim.opt.swapfile = false
 vim.opt.wrap = false
@@ -17,8 +18,8 @@ vim.keymap.set('n', ',w', ':w<CR>', { desc = 'Save buffer' })
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
 
-vim.keymap.set('n', '<leader>dc', ':bwipeout<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<leader>db', ':%bd|e#|bd#<cr>|\'"<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bc', ':bwipeout<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bd', ':%bd|e#|bd#<cr>|\'"<CR>', { noremap = true, silent = true })
 
 vim.keymap.set('v', '<', '<gv', { noremap = true, silent = true })
 vim.keymap.set('v', '>', '>gv', { noremap = true, silent = true })
@@ -103,6 +104,160 @@ return {
           require('lint').try_lint()
         end,
       })
+    end,
+  },
+  {
+    'vim-test/vim-test',
+    dependencies = {
+      -- tslime as a dependency
+      'jgdavey/tslime.vim',
+    },
+    config = function()
+      -- Set the test strategy to tslime
+      vim.g['test#strategy'] = 'tslime'
+
+      -- Configure tslime to target the second tmux window (window 1, 0-based index)
+      vim.g.tslime_always_current_session = 1 -- Use current tmux session
+      vim.g.tslime_default_pane = 0
+
+      -- Set delve as the test runner for Go
+      vim.g['test#go#runner'] = 'delve' -- Use Go test runner
+
+      -- Optional: Keybindings
+      vim.keymap.set('n', '<leader>tf', ':TestFile<CR>', { desc = 'Run tests in file' })
+      vim.keymap.set('n', '<leader>tn', ':TestNearest<CR>', { desc = 'Run nearest test' })
+      vim.keymap.set('n', '<leader>tl', ':TestLast<CR>', { desc = 'Rerun last test' })
+    end,
+  },
+  {
+    -- NOTE: Yes, you can install new plugins here!
+    'mfussenegger/nvim-dap',
+    -- NOTE: And you can specify dependencies as well
+    dependencies = {
+      -- Creates a beautiful debugger UI
+      'rcarriga/nvim-dap-ui',
+
+      -- Required dependency for nvim-dap-ui
+      'nvim-neotest/nvim-nio',
+
+      -- Installs the debug adapters for you
+      'williamboman/mason.nvim',
+      'jay-babu/mason-nvim-dap.nvim',
+
+      -- Add your own debuggers here
+      'leoluz/nvim-dap-go',
+    },
+    keys = {
+      -- Basic debugging keymaps, feel free to change to your liking!
+      {
+        '<F5>',
+        function()
+          require('dap').continue()
+        end,
+        desc = 'Debug: Start/Continue',
+      },
+      {
+        '<F1>',
+        function()
+          require('dap').step_into()
+        end,
+        desc = 'Debug: Step Into',
+      },
+      {
+        '<F2>',
+        function()
+          require('dap').step_over()
+        end,
+        desc = 'Debug: Step Over',
+      },
+      {
+        '<F3>',
+        function()
+          require('dap').step_out()
+        end,
+        desc = 'Debug: Step Out',
+      },
+      {
+        '<leader>db',
+        function()
+          require('dap').toggle_breakpoint()
+        end,
+        desc = 'Debug: Toggle Breakpoint',
+      },
+      {
+        '<leader>B',
+        function()
+          require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+        end,
+        desc = 'Debug: Set Breakpoint',
+      },
+      -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
+      {
+        '<F7>',
+        function()
+          require('dapui').toggle()
+        end,
+        desc = 'Debug: See last session result.',
+      },
+      {
+        '<F8>',
+        function()
+          require('dapui').eval(nil, { enter = true })
+        end,
+        desc = 'Debug: See last session result.',
+      },
+      {
+        '<leader>dt',
+        function()
+          require('dap-go').debug_test()
+        end,
+        desc = 'Debug: See last session result.',
+      },
+      {
+        '<F10>',
+        function()
+          require('dap').terminate()
+          require('dapui').close()
+        end,
+        desc = 'Debug: See last session result.',
+      },
+    },
+    config = function()
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      -- Dap UI setup
+      dapui.setup {
+        layouts = {
+          {
+            -- Sidebar layout
+            elements = {
+              { id = 'scopes', size = 0.40 },
+              { id = 'breakpoints', size = 0.25 },
+              { id = 'stacks', size = 0.25 },
+              { id = 'watches', size = 0.1 },
+            },
+            size = 50, -- Width of the sidebar (in columns)
+            position = 'left', -- Can be "left", "right", "top", "bottom"
+          },
+          {
+            -- Tray layout
+            elements = {
+              { id = 'repl', size = 0.9 },
+              { id = 'console', size = 0.1 },
+            },
+            size = 10, -- Height of the tray (in lines)
+            position = 'bottom',
+          },
+        },
+      }
+
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      -- dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      -- dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+      -- Install golang specific config
+      require('dap-go').setup {}
     end,
   },
 }
