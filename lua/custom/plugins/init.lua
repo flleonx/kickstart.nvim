@@ -26,25 +26,28 @@ vim.keymap.set('v', '>', '>gv', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, { noremap = true, silent = true })
 
+if os.getenv 'SHELL' ~= '/bin/zsh' then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy '+',
+      ['*'] = require('vim.ui.clipboard.osc52').copy '*',
+    },
+    paste = {
+      ['+'] = function() end,
+      ['*'] = function() end,
+    },
+  }
+end
+
 return {
   {
     'sainnhe/gruvbox-material',
     priority = 1000,
-  },
-  {
-    'f-person/auto-dark-mode.nvim',
-    opts = {
-      set_dark_mode = function()
-        vim.api.nvim_set_option_value('background', 'dark', {})
-        vim.cmd.colorscheme 'gruvbox-material'
-      end,
-      set_light_mode = function()
-        vim.api.nvim_set_option_value('background', 'light', {})
-        vim.cmd.colorscheme 'gruvbox-material'
-      end,
-      update_interval = 10000,
-      fallback = 'dark',
-    },
+    config = function()
+      vim.api.nvim_set_option_value('background', 'dark', {})
+      vim.cmd.colorscheme 'gruvbox-material'
+    end,
   },
   {
     'folke/flash.nvim',
@@ -107,32 +110,7 @@ return {
     end,
   },
   {
-    'vim-test/vim-test',
-    dependencies = {
-      -- tslime as a dependency
-      'jgdavey/tslime.vim',
-    },
-    config = function()
-      -- Set the test strategy to tslime
-      vim.g['test#strategy'] = 'tslime'
-
-      -- Configure tslime to target the second tmux window (window 1, 0-based index)
-      vim.g.tslime_always_current_session = 1 -- Use current tmux session
-      vim.g.tslime_default_pane = 0
-
-      -- Set delve as the test runner for Go
-      vim.g['test#go#runner'] = 'delve' -- Use Go test runner
-
-      -- Optional: Keybindings
-      vim.keymap.set('n', '<leader>tf', ':TestFile<CR>', { desc = 'Run tests in file' })
-      vim.keymap.set('n', '<leader>tn', ':TestNearest<CR>', { desc = 'Run nearest test' })
-      vim.keymap.set('n', '<leader>tl', ':TestLast<CR>', { desc = 'Rerun last test' })
-    end,
-  },
-  {
-    -- NOTE: Yes, you can install new plugins here!
     'mfussenegger/nvim-dap',
-    -- NOTE: And you can specify dependencies as well
     dependencies = {
       -- Creates a beautiful debugger UI
       'rcarriga/nvim-dap-ui',
@@ -234,8 +212,8 @@ return {
             elements = {
               { id = 'scopes', size = 0.40 },
               { id = 'breakpoints', size = 0.25 },
-              { id = 'stacks', size = 0.25 },
-              { id = 'watches', size = 0.1 },
+              { id = 'watches', size = 0.20 },
+              { id = 'stacks', size = 0.15 },
             },
             size = 50, -- Width of the sidebar (in columns)
             position = 'left', -- Can be "left", "right", "top", "bottom"
@@ -253,8 +231,6 @@ return {
       }
 
       dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-      -- dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-      -- dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
       -- Install golang specific config
       require('dap-go').setup {}
